@@ -1,44 +1,75 @@
 public class Client {
     private int id;
-    private String name;
-    private String Surname;
+    private String nom;
+    private String prenom;
     private String telephone;
     private String email;
+    private String adresse;
 
-    public Client(int id, String name, String Surname, String telephone, String email) {
+    public Client(int id, String name, String prenom, String telephone, String email, String adresse) {
         this.id = id;
-        this.name = name;
-        this.Surname = Surname;
+        this.nom = name;
+        this.prenom = prenom;
         this.telephone = telephone;
         this.email = email;
+        this.adresse = adresse;
     }
 
     public void afficherDetails() {
-        System.out.println("ID: " + this.id);
-        System.out.println("Name: " + this.name);
-        System.out.println("Surname: " + this.Surname);
-        System.out.println("Telephone: " + this.telephone);
-        System.out.println("Email: " + this.email);
+        System.out.println("┌─────────────────────────────┐");
+        System.out.printf("│ 👤 Client #%-17d │%n", id);
+        System.out.printf("│ Nom:       %-17s │%n", nom + " " + prenom);
+        System.out.printf("│ Téléphone: %-17s │%n", telephone);
+        System.out.printf("│ Email:     %-17s │%n", email);
+        System.out.printf("│ Adresse:   %-17s │%n", adresse);
+        System.out.println("└─────────────────────────────┘");
     }
 
     public int getId() {
         return id;
     }
 
-    public String getName() {
-        return name;
+    public String getNom() {
+        return nom;
     }
 
     public String getSurname() {
-        return Surname;
+        return prenom;
     }
 
     public String getTelephone() {
         return telephone;
     }
 
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
+    }
+
     public String getEmail() {
         return email;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getAdresse() {
+        return adresse;
+    }
+
+    public void setAdresse(String adresse) {
+        this.adresse = adresse;
+    }
+
+    @Override
+    public String toString() {
+        return "Client{" +
+                "id=" + id +
+                ", nom='" + nom + '\'' +
+                ", prenom='" + prenom + '\'' +
+                ", telephone='" + telephone + '\'' +
+                ", email='" + email + '\'' +
+                ", adresse='" + adresse + '\'' +
+                '}';
+    }
 }
