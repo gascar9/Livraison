@@ -5,10 +5,11 @@ public class Client {
     private String telephone;
     private String email;
     private String adresse;
+    private static int compteur = 0;
 
-    public Client(int id, String name, String prenom, String telephone, String email, String adresse) {
-        this.id = id;
-        this.nom = name;
+    public Client(String nom, String prenom, String telephone, String email, String adresse) {
+        this.id = compteur++;
+        this.nom = nom;
         this.prenom = prenom;
         this.telephone = telephone;
         this.email = email;

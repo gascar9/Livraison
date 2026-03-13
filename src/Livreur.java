@@ -13,6 +13,16 @@ public class Livreur {
         this.telephone = telephone;
     }
 
+    public void afficherDetails() {
+        System.out.println("┌─────────────────────────────┐");
+        System.out.printf("│ 👤 Client #%-17d │%n", id);
+        System.out.printf("│ Nom:       %-17s │%n", nom + " " + prenom);
+        System.out.printf("│ Téléphone: %-17s │%n", telephone);
+        System.out.printf("│ Voiture:     %-17s │%n", voiture);
+        System.out.printf("│ Plaque:   %-17s │%n", plaque);
+        System.out.println("└─────────────────────────────┘");
+    }
+
     public int getId() {
         return id;
     }
