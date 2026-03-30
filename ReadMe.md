@@ -1,28 +1,35 @@
-# 🚚 Système de Gestion de Livraison
+# Systeme de Gestion de Livraison
 
-Projet Java POO — ING3 ECE Lyon
+Projet Java POO -- ING3 ECE Lyon
 
-Application console interactive avec navigation au clavier (flèches ↑↓) pour gérer les clients, livreurs, commandes et livraisons.
+Application console interactive avec navigation au clavier (fleches) pour gerer les clients, livreurs, commandes et livraisons.
 
 ---
 
-## Prérequis
+## Prerequis
 
-- **Java 21+** (testé avec OpenJDK 25)
-- **IntelliJ IDEA**
-- **Maven** (intégré dans IntelliJ)
+- **Java 21+** (teste avec OpenJDK 25)
+- **IntelliJ IDEA** (ou tout IDE Java)
+- **JLine 3.25.1** (bibliotheque pour la navigation fleches dans le terminal)
 
 ---
 
 ## Installation
 
-### 1. Cloner / ouvrir le projet
+### 1. Ouvrir le projet
 
 Ouvrir le dossier `Livraison` dans IntelliJ IDEA.
 
-### 2. Ajouter la dépendance JLine
+### 2. Ajouter la dependance JLine
 
-JLine est la bibliothèque qui permet la navigation avec les flèches dans le terminal.
+JLine permet la navigation avec les fleches dans le terminal.
+
+**Sans Maven** (projet Java simple) :
+
+1. `File` > `Project Structure` (`Cmd+;` sur Mac)
+2. Onglet **Libraries** > cliquer sur **+** > **From Maven...**
+3. Chercher `org.jline:jline:3.25.1`
+4. Valider > **Apply** > **OK**
 
 **Avec Maven** (`pom.xml`) :
 
@@ -34,40 +41,38 @@ JLine est la bibliothèque qui permet la navigation avec les flèches dans le te
 </dependency>
 ```
 
-Puis : clic droit sur `pom.xml` → **Maven** → **Reload Project**
-
-**Sans Maven** (projet Java simple) :
-
-1. `File` → `Project Structure` (`Cmd+;` sur Mac)
-2. Onglet **Libraries** → cliquer sur **+** → **From Maven...**
-3. Chercher `org.jline:jline:3.25.1`
-4. Valider → **Apply** → **OK**
-
 ### 3. Configurer le VM option
 
-Java 21+ nécessite une option pour autoriser l'accès natif de JLine :
+Java 21+ necessite une option pour autoriser l'acces natif de JLine :
 
-1. `Run` → `Edit Configurations...`
-2. Sélectionner la configuration **Main**
-3. Cliquer sur **Modify options** → **Add VM options**
-4. Dans le champ VM options, ajouter :
-
-```
---enable-native-access=ALL-UNNAMED
-```
+1. `Run` > `Edit Configurations...`
+2. Selectionner la configuration **Main**
+3. Cliquer sur **Modify options** > **Add VM options**
+4. Ajouter : `--enable-native-access=ALL-UNNAMED`
 
 ---
 
 ## Lancement
 
-### ⚠️ Important : Terminal requis
+### Important : utiliser un vrai terminal
 
-La console Run intégrée d'IntelliJ **ne supporte pas** le mode raw de JLine (les flèches ne fonctionneront pas). Il faut lancer depuis un **vrai terminal**.
+La console Run d'IntelliJ **ne supporte pas** le mode raw de JLine.
+Les fleches ne fonctionneront pas en cliquant sur le bouton Run.
+Il faut lancer depuis un **vrai terminal**.
 
-### Option A — Terminal intégré d'IntelliJ (recommandé)
+### Option A -- Script shell (recommande)
 
-1. Compiler le projet : `Cmd+F9` (Build)
-2. Ouvrir l'onglet **Terminal** en bas d'IntelliJ (pas "Run", mais "Terminal")
+1. Compiler le projet : `Cmd+F9` (Build) dans IntelliJ
+2. Lancer depuis le terminal :
+
+```bash
+./run.sh
+```
+
+### Option B -- Terminal d'IntelliJ
+
+1. Compiler : `Cmd+F9`
+2. Ouvrir l'onglet **Terminal** (pas "Run")
 3. Lancer :
 
 ```bash
@@ -77,107 +82,240 @@ java --enable-native-access=ALL-UNNAMED \
   Main
 ```
 
-### Option B — Script shell (plus pratique)
-
-1. Créer un fichier `run.sh` à la racine du projet :
+### Option C -- Compilation manuelle (sans IntelliJ)
 
 ```bash
-#!/bin/bash
-cd "$(dirname "$0")/out/production/Livraison"
-java --enable-native-access=ALL-UNNAMED \
-  -cp ".:$HOME/.m2/repository/org/jline/jline/3.25.1/jline-3.25.1.jar" \
-  Main
+javac -cp "$HOME/.m2/repository/org/jline/jline/3.25.1/jline-3.25.1.jar" \
+  -d out/production/Livraison src/*.java
+./run.sh
 ```
-
-2. Le rendre exécutable :
-
-```bash
-chmod +x run.sh
-```
-
-3. Configurer dans IntelliJ :
-    - `Run` → `Edit Configurations...` → **+** → **Shell Script**
-    - Script path : sélectionner `run.sh`
-    - Cocher **Execute in the terminal**
-
-4. Lancer avec le bouton ▶️ (penser à Build avec `Cmd+F9` avant)
-
-### Option C — Alias terminal (pour la soutenance)
-
-Ajouter un alias permanent dans le terminal :
-
-```bash
-echo 'alias livraison="cd ~/Livraison/out/production/Livraison && java --enable-native-access=ALL-UNNAMED -cp \".:$HOME/.m2/repository/org/jline/jline/3.25.1/jline-3.25.1.jar\" Main"' >> ~/.zshrc
-source ~/.zshrc
-```
-
-Ensuite, taper simplement `livraison` dans n'importe quel terminal.
 
 ---
 
 ## Utilisation
 
+### Navigation
+
 ```
-  ╔══════════════════════════════════════╗
-  ║     🚚  SYSTÈME DE LIVRAISON  🚚     ║
-  ╚══════════════════════════════════════╝
+  +==========================================+
+  |  SYSTEME DE LIVRAISON                    |
+  +==========================================+
 
-   ▸ 👤  Gestion des clients        ← sélectionné
-     🏍   Gestion des livreurs
-     📦  Gestion des commandes
-     🚚  Gestion des livraisons
-     ❌  Quitter
+   > Gestion des clients
+     Gestion des livreurs
+     Gestion des commandes
+     Gestion des livraisons
+     Statistiques
+     Quitter
 
-  ↑↓ Naviguer  │  Entrée Valider
+  [^v] Naviguer  |  [Entree] Valider
 ```
 
-- **↑ / ↓** : naviguer entre les options
-- **Entrée** : valider la sélection
-- L'option **← Retour** dans chaque sous-menu revient au menu précédent
+- **Fleches haut/bas** : naviguer entre les options
+- **Entree** : valider la selection
+- **Retour** dans chaque sous-menu revient au menu precedent
+
+### Saisie de texte
+
+Quand l'application demande une information (nom, telephone, etc.),
+taper le texte puis appuyer sur Entree. Laisser vide pour ne pas modifier
+un champ existant.
 
 ---
 
-## Structure du projet
+## Fonctionnalites
 
-```
-Livraison/
-├── src/
-│   ├── Client.java            # Entité client
-│   ├── Livreur.java           # Entité livreur
-│   ├── Commande.java          # Entité commande (client, description, statut)
-│   ├── Livraison.java         # Entité livraison (commande, livreur, dates)
-│   ├── StatutCommande.java    # Enum : EN_ATTENTE, EN_PREPARATION, EN_LIVRAISON, LIVREE
-│   ├── TypeLivraison.java     # Enum : STANDARD, EXPRESS
-│   ├── ServiceLivraison.java  # Logique métier (CRUD, recherche, tri, stats)
-│   ├── MenuCLI.java           # Interface terminal (JLine, couleurs, navigation)
-│   └── Main.java              # Point d'entrée, menus et interactions
-├── run.sh                     # Script de lancement
-└── README.md
-```
+### Gestion des clients
+
+| Action | Description |
+|--------|-------------|
+| Ajouter | Saisie du nom, prenom, telephone, email, adresse |
+| Supprimer | Par ID, avec confirmation et verification des commandes en cours |
+| Modifier | Modification partielle (laisser vide = pas de changement) |
+| Rechercher | Par identifiant ou par nom (recherche partielle) |
+| Afficher | Liste complete ou triee par nom |
+
+### Gestion des livreurs
+
+| Action | Description |
+|--------|-------------|
+| Ajouter | Saisie du nom, prenom, telephone, vehicule |
+| Supprimer | Par ID, avec confirmation et verification des livraisons en cours |
+| Modifier | Modification partielle |
+| Rechercher | Par identifiant ou par nom |
+| Afficher | Liste complete ou triee par nom |
+
+### Gestion des commandes
+
+| Action | Description |
+|--------|-------------|
+| Creer | Selection du client par menu fleches, saisie de la description |
+| Supprimer | Par ID, avec confirmation et verification des livraisons |
+| Modifier statut | EN_ATTENTE > EN_PREPARATION > EN_LIVRAISON > LIVREE |
+| Rechercher | Par identifiant ou par description |
+| Afficher | Toutes, triees par date, par client, ou en cours de livraison |
+
+### Gestion des livraisons
+
+| Action | Description |
+|--------|-------------|
+| Affecter | Selection commande + livreur + type (standard/express) + date prevue |
+| Terminer | Selection de la livraison en cours, marque comme livree |
+| En cours | Liste des livraisons non terminees |
+| Historique | Liste des livraisons terminees |
+
+### Statistiques
+
+- Nombre de clients, livreurs, commandes, livraisons
+- Nombre de commandes livrees et en cours
+- Livreur le plus actif
+- Activite par livreur (nombre de livraisons terminees)
 
 ---
 
-## Dépendances
+## Architecture du code
 
-| Bibliothèque | Version | Usage |
+### Diagramme de classes
+
+```
+                    +------------------+
+                    |    Personne      |  (abstract)
+                    +------------------+
+                    | # id : int       |
+                    | - nom : String   |
+                    | - prenom : String|
+                    | - telephone : String
+                    +------------------+
+                    | + afficherDetails()* |
+                    | + getId/getNom/etc() |
+                    +--------+---------+
+                             |
+                +------------+------------+
+                |                         |
+      +---------+--------+     +---------+--------+
+      |     Client       |     |     Livreur      |
+      +------------------+     +------------------+
+      | - email : String |     | - vehicule : String
+      | - adresse : String     +------------------+
+      +------------------+
+```
+
+### Fichiers source
+
+```
+src/
+  Personne.java          Classe abstraite mere de Client et Livreur.
+                         Factorise les attributs communs : id, nom, prenom, telephone.
+                         Definit afficherDetails() en methode abstraite.
+
+  Client.java            Herite de Personne. Ajoute email et adresse.
+                         ID auto-incremente (compteur statique propre).
+
+  Livreur.java           Herite de Personne. Ajoute vehicule.
+                         ID auto-incremente (compteur statique propre).
+
+  StatutCommande.java    Enum avec 4 valeurs :
+                         EN_ATTENTE, EN_PREPARATION, EN_LIVRAISON, LIVREE.
+                         Chaque valeur a un label affichable ("En attente", etc.).
+
+  TypeLivraison.java     Enum avec 2 valeurs : STANDARD, EXPRESS.
+
+  Commande.java          Represente une commande. Contient une reference vers
+                         un Client, une description, une date (LocalDate),
+                         et un StatutCommande. ID auto-incremente.
+
+  Livraison.java         Represente une livraison. Lie une Commande a un Livreur.
+                         Contient une date prevue, une date reelle (null si en cours),
+                         et un TypeLivraison. Passe la commande en EN_LIVRAISON
+                         a la creation. terminerLivraison() met la date reelle
+                         et passe la commande en LIVREE.
+
+  ServiceLivraison.java  Couche metier. Stocke 4 ArrayList :
+                         listeClients, listeLivreurs, listeCommandes, listeLivraisons.
+                         Methodes CRUD pour chaque entite + recherche par nom,
+                         tri par nom/date, statistiques, verifications avant
+                         suppression (cascade). Les getters renvoient des listes
+                         non modifiables (Collections.unmodifiableList).
+
+  MenuCLI.java           Couche interface. Encapsule JLine 3.25.1.
+                         selectionner() : menu fleches avec boucle de lecture.
+                         lireTexte() / lireEntier() : saisie clavier caractere
+                         par caractere en mode raw.
+                         Methodes d'affichage avec couleurs ANSI.
+
+  Main.java              Point d'entree. Initialise le terminal et les donnees
+                         de demo. Contient tous les menus et leurs actions.
+                         Delegue la logique metier a ServiceLivraison
+                         et l'affichage a MenuCLI.
+```
+
+### Relations entre classes
+
+```
+Main ----utilise----> MenuCLI          (interface terminal)
+Main ----utilise----> ServiceLivraison (logique metier)
+
+ServiceLivraison ----gere----> ArrayList<Client>
+ServiceLivraison ----gere----> ArrayList<Livreur>
+ServiceLivraison ----gere----> ArrayList<Commande>
+ServiceLivraison ----gere----> ArrayList<Livraison>
+
+Commande ----reference----> Client          (le client qui a commande)
+Commande ----reference----> StatutCommande  (etat de la commande)
+
+Livraison ----reference----> Commande       (la commande livree)
+Livraison ----reference----> Livreur        (le livreur affecte)
+Livraison ----reference----> TypeLivraison  (standard ou express)
+
+Client  ----herite----> Personne
+Livreur ----herite----> Personne
+```
+
+### Concepts POO utilises
+
+| Concept | Ou dans le code |
+|---------|-----------------|
+| **Heritage** | `Personne` (abstraite) > `Client`, `Livreur` |
+| **Abstraction** | `afficherDetails()` est abstraite dans `Personne` |
+| **Encapsulation** | Attributs prives, getters/setters, listes non modifiables |
+| **Enumerations** | `StatutCommande`, `TypeLivraison` |
+| **Collections** | `ArrayList` pour stocker les entites |
+| **Relations** | Composition (Commande contient Client), association (Livraison lie Commande et Livreur) |
+| **Polymorphisme** | `afficherDetails()` s'execute differemment pour Client et Livreur |
+
+### Fonctionnalites avancees implementees
+
+1. Tri des clients par nom
+2. Tri des livreurs par nom
+3. Tri des commandes par date
+4. Statistiques livreurs les plus actifs
+5. Commandes d'un client donne
+6. Types de livraison (express / standard)
+7. Recherche multicritere (par id, nom, description)
+
+---
+
+## Dependances
+
+| Bibliotheque | Version | Usage |
 |---|---|---|
-| [JLine](https://github.com/jline/jline3) | 3.25.1 | Navigation flèches, raw mode terminal, lecture clavier |
+| [JLine](https://github.com/jline/jline3) | 3.25.1 | Navigation fleches, raw mode terminal, lecture clavier |
 
 ---
 
 ## Troubleshooting
 
-**Les flèches ne marchent pas :**
-→ Tu es probablement dans la console Run d'IntelliJ. Lance depuis l'onglet Terminal ou un terminal externe.
+**Les fleches ne marchent pas :**
+Lancer depuis l'onglet Terminal d'IntelliJ ou un terminal externe, pas la console Run.
 
 **Warning "restricted method" :**
-→ Ajouter `--enable-native-access=ALL-UNNAMED` dans les VM options.
+Ajouter `--enable-native-access=ALL-UNNAMED` dans les VM options.
 
 **Warning "dumb terminal" :**
-→ Normal dans la console Run d'IntelliJ. Utilise un vrai terminal.
+Normal dans la console Run d'IntelliJ. Utiliser un vrai terminal.
 
-**`ClassNotFoundException: org.jline...` :**
-→ Le jar JLine n'est pas dans le classpath. Vérifier le `-cp` dans la commande ou la config Maven.
+**ClassNotFoundException: org.jline... :**
+Le jar JLine n'est pas dans le classpath. Verifier le `-cp` dans la commande ou la config IntelliJ.
 
-**Les emojis ne s'affichent pas :**
-→ Utiliser un terminal compatible UTF-8 (Terminal.app, iTerm2).
+**L'application affiche l'ancien code apres modification :**
+Recompiler avec `Cmd+F9` dans IntelliJ ou `javac` en ligne de commande avant de relancer `./run.sh`.
