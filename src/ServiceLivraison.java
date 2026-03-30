@@ -1,5 +1,7 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 public class ServiceLivraison {
     private ArrayList<Client> listeClients = new ArrayList<>();
@@ -13,7 +15,17 @@ public class ServiceLivraison {
         listeClients.add(client);
     }
 
+    public boolean peutSupprimerClient(int id) {
+        for (Commande c : listeCommandes) {
+            if (c.getClient().getId() == id && c.getStatut() != StatutCommande.LIVREE) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public boolean supprimerClient(int id) {
+        listeCommandes.removeIf(c -> c.getClient().getId() == id);
         return listeClients.removeIf(c -> c.getId() == id);
     }
 
@@ -43,14 +55,23 @@ public class ServiceLivraison {
         return copie;
     }
 
-    public ArrayList<Client> getListeClients() {
-        return listeClients;
+    public List<Client> getListeClients() {
+        return Collections.unmodifiableList(listeClients);
     }
 
     // ═══ LIVREURS ═══
 
     public void ajouterLivreur(Livreur livreur) {
         listeLivreurs.add(livreur);
+    }
+
+    public boolean peutSupprimerLivreur(int id) {
+        for (Livraison l : listeLivraisons) {
+            if (l.getLivreur().getId() == id && !l.estTerminee()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public boolean supprimerLivreur(int id) {
@@ -76,8 +97,15 @@ public class ServiceLivraison {
         return resultats;
     }
 
-    public ArrayList<Livreur> getListeLivreurs() {
-        return listeLivreurs;
+    public ArrayList<Livreur> getLivreursTriesParNom() {
+        ArrayList<Livreur> copie = new ArrayList<>(listeLivreurs);
+        copie.sort(Comparator.comparing(Livreur::getNom)
+                .thenComparing(Livreur::getPrenom));
+        return copie;
+    }
+
+    public List<Livreur> getListeLivreurs() {
+        return Collections.unmodifiableList(listeLivreurs);
     }
 
     // ═══ COMMANDES ═══
@@ -86,7 +114,17 @@ public class ServiceLivraison {
         listeCommandes.add(commande);
     }
 
+    public boolean peutSupprimerCommande(int id) {
+        for (Livraison l : listeLivraisons) {
+            if (l.getCommande().getId() == id && !l.estTerminee()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public boolean supprimerCommande(int id) {
+        listeLivraisons.removeIf(l -> l.getCommande().getId() == id);
         return listeCommandes.removeIf(c -> c.getId() == id);
     }
 
@@ -95,6 +133,17 @@ public class ServiceLivraison {
             if (c.getId() == id) return c;
         }
         return null;
+    }
+
+    public ArrayList<Commande> rechercherCommandeParDescription(String texte) {
+        ArrayList<Commande> resultats = new ArrayList<>();
+        String texteLower = texte.toLowerCase();
+        for (Commande c : listeCommandes) {
+            if (c.getDescription().toLowerCase().contains(texteLower)) {
+                resultats.add(c);
+            }
+        }
+        return resultats;
     }
 
     public ArrayList<Commande> getCommandesTrieesParDate() {
@@ -123,11 +172,20 @@ public class ServiceLivraison {
         return resultats;
     }
 
-    public ArrayList<Commande> getListeCommandes() {
-        return listeCommandes;
+    public List<Commande> getListeCommandes() {
+        return Collections.unmodifiableList(listeCommandes);
     }
 
     // ═══ LIVRAISONS ═══
+
+    public boolean commandeDejaAffectee(int commandeId) {
+        for (Livraison l : listeLivraisons) {
+            if (l.getCommande().getId() == commandeId && !l.estTerminee()) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public void affecterLivraison(Livraison livraison) {
         listeLivraisons.add(livraison);
@@ -153,8 +211,8 @@ public class ServiceLivraison {
         return resultats;
     }
 
-    public ArrayList<Livraison> getListeLivraisons() {
-        return listeLivraisons;
+    public List<Livraison> getListeLivraisons() {
+        return Collections.unmodifiableList(listeLivraisons);
     }
 
     // ═══ STATISTIQUES ═══
