@@ -374,6 +374,7 @@ public class Main {
             int choix = cli.selectionner("GESTION DES COMMANDES", new String[]{
                     "Creer une commande",
                     "Supprimer une commande",
+                    "Modifier le statut d'une commande",
                     "Rechercher une commande",
                     "Afficher toutes les commandes",
                     "Commandes triees par date",
@@ -385,12 +386,13 @@ public class Main {
             switch (choix) {
                 case 0 -> creerCommande();
                 case 1 -> supprimerCommande();
-                case 2 -> rechercherCommande();
-                case 3 -> afficherCommandes(service.getListeCommandes(), "Toutes les Commandes");
-                case 4 -> afficherCommandes(service.getCommandesTrieesParDate(), "Commandes triees par date");
-                case 5 -> commandesParClient();
-                case 6 -> afficherCommandes(service.getCommandesEnLivraison(), "Commandes en livraison");
-                case 7 -> back = true;
+                case 2 -> modifierStatutCommande();
+                case 3 -> rechercherCommande();
+                case 4 -> afficherCommandes(service.getListeCommandes(), "Toutes les Commandes");
+                case 5 -> afficherCommandes(service.getCommandesTrieesParDate(), "Commandes triees par date");
+                case 6 -> commandesParClient();
+                case 7 -> afficherCommandes(service.getCommandesEnLivraison(), "Commandes en livraison");
+                case 8 -> back = true;
             }
         }
     }
@@ -428,6 +430,47 @@ public class Main {
         Commande commande = new Commande(clients.get(choixClient), description);
         service.creerCommande(commande);
         cli.afficherSucces("Commande #" + commande.getId() + " creee.");
+        cli.pause();
+    }
+
+    static void modifierStatutCommande() throws IOException {
+        cli.clearScreen();
+        cli.afficherTitre("Modifier le statut d'une commande");
+
+        if (service.getListeCommandes().isEmpty()) {
+            cli.afficherErreur("Aucune commande.");
+            cli.pause();
+            return;
+        }
+
+        ArrayList<Commande> commandes = service.getListeCommandes();
+        String[] optionsCmd = new String[commandes.size() + 1];
+        for (int i = 0; i < commandes.size(); i++) {
+            optionsCmd[i] = commandes.get(i).toString();
+        }
+        optionsCmd[commandes.size()] = "Annuler";
+
+        int choixCmd = cli.selectionner("Choisir la commande", optionsCmd);
+        if (choixCmd == commandes.size()) return;
+
+        Commande commande = commandes.get(choixCmd);
+        int choixStatut = cli.selectionner("Nouveau statut pour commande #" + commande.getId(), new String[]{
+                "En attente",
+                "En preparation",
+                "En livraison",
+                "Livree",
+                "Annuler"
+        });
+
+        switch (choixStatut) {
+            case 0 -> commande.modifierStatut(StatutCommande.EN_ATTENTE);
+            case 1 -> commande.modifierStatut(StatutCommande.EN_PREPARATION);
+            case 2 -> commande.modifierStatut(StatutCommande.EN_LIVRAISON);
+            case 3 -> commande.modifierStatut(StatutCommande.LIVREE);
+            case 4 -> { return; }
+        }
+
+        cli.afficherSucces("Commande #" + commande.getId() + " -> " + commande.getStatut().getLabel());
         cli.pause();
     }
 
