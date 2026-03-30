@@ -3,6 +3,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
 
@@ -53,6 +54,13 @@ public class Main {
         cli.close();
     }
 
+    // ═══ UTILITAIRE ═══
+
+    static boolean confirmer(String message) throws IOException {
+        int choix = cli.selectionner(message, new String[]{"Oui", "Non"});
+        return choix == 0;
+    }
+
     // ═══════════════════════════════════════
     //            MENU CLIENTS
     // ═══════════════════════════════════════
@@ -75,7 +83,7 @@ public class Main {
                 case 1 -> supprimerClient();
                 case 2 -> modifierClient();
                 case 3 -> rechercherClient();
-                case 4 -> afficherClients(service.getListeClients(), "Liste des Clients");
+                case 4 -> afficherClients(new ArrayList<>(service.getListeClients()), "Liste des Clients");
                 case 5 -> afficherClients(service.getClientsTriesParNom(), "Clients tries par nom");
                 case 6 -> back = true;
             }
@@ -116,9 +124,23 @@ public class Main {
         Client client = service.rechercherClientParId(id);
         if (client == null) {
             cli.afficherErreur("Client #" + id + " introuvable.");
-        } else {
+            cli.pause();
+            return;
+        }
+
+        client.afficherDetails();
+
+        if (!service.peutSupprimerClient(id)) {
+            cli.afficherErreur("Ce client a des commandes en cours. Impossible de le supprimer.");
+            cli.pause();
+            return;
+        }
+
+        if (confirmer("Confirmer la suppression de " + client.getNom() + " " + client.getPrenom() + " ?")) {
             service.supprimerClient(id);
             cli.afficherSucces("Client #" + id + " supprime.");
+        } else {
+            cli.afficherInfo("Suppression annulee.");
         }
         cli.pause();
     }
@@ -153,9 +175,6 @@ public class Main {
     }
 
     static void rechercherClient() throws IOException {
-        cli.clearScreen();
-        cli.afficherTitre("Rechercher un Client");
-
         int choix = cli.selectionner("Rechercher par", new String[]{
                 "Identifiant",
                 "Nom",
@@ -217,6 +236,7 @@ public class Main {
                     "Modifier un livreur",
                     "Rechercher un livreur",
                     "Afficher tous les livreurs",
+                    "Afficher livreurs tries par nom",
                     "Retour"
             });
 
@@ -225,8 +245,9 @@ public class Main {
                 case 1 -> supprimerLivreur();
                 case 2 -> modifierLivreur();
                 case 3 -> rechercherLivreur();
-                case 4 -> afficherLivreurs();
-                case 5 -> back = true;
+                case 4 -> afficherLivreurs(new ArrayList<>(service.getListeLivreurs()), "Liste des Livreurs");
+                case 5 -> afficherLivreurs(service.getLivreursTriesParNom(), "Livreurs tries par nom");
+                case 6 -> back = true;
             }
         }
     }
@@ -264,9 +285,23 @@ public class Main {
         Livreur livreur = service.rechercherLivreurParId(id);
         if (livreur == null) {
             cli.afficherErreur("Livreur #" + id + " introuvable.");
-        } else {
+            cli.pause();
+            return;
+        }
+
+        livreur.afficherDetails();
+
+        if (!service.peutSupprimerLivreur(id)) {
+            cli.afficherErreur("Ce livreur a des livraisons en cours. Impossible de le supprimer.");
+            cli.pause();
+            return;
+        }
+
+        if (confirmer("Confirmer la suppression de " + livreur.getNom() + " " + livreur.getPrenom() + " ?")) {
             service.supprimerLivreur(id);
             cli.afficherSucces("Livreur #" + id + " supprime.");
+        } else {
+            cli.afficherInfo("Suppression annulee.");
         }
         cli.pause();
     }
@@ -299,9 +334,6 @@ public class Main {
     }
 
     static void rechercherLivreur() throws IOException {
-        cli.clearScreen();
-        cli.afficherTitre("Rechercher un Livreur");
-
         int choix = cli.selectionner("Rechercher par", new String[]{
                 "Identifiant",
                 "Nom",
@@ -326,22 +358,15 @@ public class Main {
             if (resultats.isEmpty()) {
                 cli.afficherErreur("Aucun livreur trouve pour \"" + nom + "\".");
             } else {
-                System.out.printf(MenuCLI.CYAN + "\n  %-5s %-15s %-15s %-15s %-15s%n" + MenuCLI.RESET,
-                        "ID", "Nom", "Prenom", "Telephone", "Vehicule");
-                System.out.println(MenuCLI.DIM + "  " + "-".repeat(65) + MenuCLI.RESET);
-                for (Livreur l : resultats) {
-                    System.out.printf("  %-5d %-15s %-15s %-15s %-15s%n",
-                            l.getId(), l.getNom(), l.getPrenom(), l.getTelephone(), l.getVehicule());
-                }
+                afficherLivreurs(resultats, "Resultats (" + resultats.size() + ")");
             }
         }
         cli.pause();
     }
 
-    static void afficherLivreurs() throws IOException {
+    static void afficherLivreurs(ArrayList<Livreur> livreurs, String titre) throws IOException {
         cli.clearScreen();
-        cli.afficherTitre("Liste des Livreurs");
-        ArrayList<Livreur> livreurs = service.getListeLivreurs();
+        cli.afficherTitre(titre);
         if (livreurs.isEmpty()) {
             cli.afficherInfo("Aucun livreur.");
         } else {
@@ -381,7 +406,7 @@ public class Main {
                 case 1 -> supprimerCommande();
                 case 2 -> modifierStatutCommande();
                 case 3 -> rechercherCommande();
-                case 4 -> afficherCommandes(service.getListeCommandes(), "Toutes les Commandes");
+                case 4 -> afficherCommandes(new ArrayList<>(service.getListeCommandes()), "Toutes les Commandes");
                 case 5 -> afficherCommandes(service.getCommandesTrieesParDate(), "Commandes triees par date");
                 case 6 -> commandesParClient();
                 case 7 -> afficherCommandes(service.getCommandesEnLivraison(), "Commandes en livraison");
@@ -400,7 +425,7 @@ public class Main {
             return;
         }
 
-        ArrayList<Client> clients = service.getListeClients();
+        List<Client> clients = service.getListeClients();
         String[] optionsClients = new String[clients.size() + 1];
         for (int i = 0; i < clients.size(); i++) {
             optionsClients[i] = clients.get(i).toString();
@@ -436,7 +461,7 @@ public class Main {
             return;
         }
 
-        ArrayList<Commande> commandes = service.getListeCommandes();
+        List<Commande> commandes = service.getListeCommandes();
         String[] optionsCmd = new String[commandes.size() + 1];
         for (int i = 0; i < commandes.size(); i++) {
             optionsCmd[i] = commandes.get(i).toString();
@@ -474,23 +499,54 @@ public class Main {
         Commande commande = service.rechercherCommandeParId(id);
         if (commande == null) {
             cli.afficherErreur("Commande #" + id + " introuvable.");
-        } else {
+            cli.pause();
+            return;
+        }
+
+        commande.afficherCommande();
+
+        if (!service.peutSupprimerCommande(id)) {
+            cli.afficherErreur("Cette commande a une livraison en cours. Impossible de la supprimer.");
+            cli.pause();
+            return;
+        }
+
+        if (confirmer("Confirmer la suppression de la commande #" + id + " ?")) {
             service.supprimerCommande(id);
             cli.afficherSucces("Commande #" + id + " supprimee.");
+        } else {
+            cli.afficherInfo("Suppression annulee.");
         }
         cli.pause();
     }
 
     static void rechercherCommande() throws IOException {
+        int choix = cli.selectionner("Rechercher par", new String[]{
+                "Identifiant",
+                "Description",
+                "Retour"
+        });
+
+        if (choix == 2) return;
+
         cli.clearScreen();
-        cli.afficherTitre("Rechercher une Commande");
-        int id = cli.lireEntier("ID de la commande");
-        Commande commande = service.rechercherCommandeParId(id);
-        if (commande == null) {
-            cli.afficherErreur("Commande #" + id + " introuvable.");
+        if (choix == 0) {
+            int id = cli.lireEntier("ID de la commande");
+            Commande commande = service.rechercherCommandeParId(id);
+            if (commande == null) {
+                cli.afficherErreur("Commande #" + id + " introuvable.");
+            } else {
+                System.out.println();
+                commande.afficherCommande();
+            }
         } else {
-            System.out.println();
-            commande.afficherCommande();
+            String texte = cli.lireTexte("Description a rechercher");
+            ArrayList<Commande> resultats = service.rechercherCommandeParDescription(texte);
+            if (resultats.isEmpty()) {
+                cli.afficherErreur("Aucune commande trouvee pour \"" + texte + "\".");
+            } else {
+                afficherCommandes(resultats, "Resultats (" + resultats.size() + ")");
+            }
         }
         cli.pause();
     }
@@ -499,7 +555,7 @@ public class Main {
         cli.clearScreen();
         cli.afficherTitre("Commandes d'un Client");
 
-        ArrayList<Client> clients = service.getListeClients();
+        List<Client> clients = service.getListeClients();
         if (clients.isEmpty()) {
             cli.afficherErreur("Aucun client.");
             cli.pause();
@@ -515,7 +571,7 @@ public class Main {
         int choix = cli.selectionner("Choisir le client", optionsClients);
         if (choix == clients.size()) return;
 
-        Client client = clients.get(choix);
+        Client client = (Client) clients.get(choix);
         ArrayList<Commande> commandes = service.getCommandesParClient(client);
         afficherCommandes(commandes, "Commandes de " + client.getNom() + " " + client.getPrenom());
     }
@@ -573,7 +629,8 @@ public class Main {
 
         ArrayList<Commande> affectables = new ArrayList<>();
         for (Commande c : service.getListeCommandes()) {
-            if (c.getStatut() == StatutCommande.EN_ATTENTE || c.getStatut() == StatutCommande.EN_PREPARATION) {
+            if ((c.getStatut() == StatutCommande.EN_ATTENTE || c.getStatut() == StatutCommande.EN_PREPARATION)
+                && !service.commandeDejaAffectee(c.getId())) {
                 affectables.add(c);
             }
         }
@@ -599,7 +656,7 @@ public class Main {
         int choixCmd = cli.selectionner("Choisir la commande", optionsCmd);
         if (choixCmd == affectables.size()) return;
 
-        ArrayList<Livreur> livreurs = service.getListeLivreurs();
+        List<Livreur> livreurs = service.getListeLivreurs();
         String[] optionsLiv = new String[livreurs.size() + 1];
         for (int i = 0; i < livreurs.size(); i++) {
             optionsLiv[i] = livreurs.get(i).toString();
@@ -659,8 +716,10 @@ public class Main {
         int choix = cli.selectionner("Choisir la livraison a terminer", options);
         if (choix == enCours.size()) return;
 
-        enCours.get(choix).terminerLivraison();
-        cli.afficherSucces("Livraison terminee !");
+        Livraison liv = enCours.get(choix);
+        liv.terminerLivraison();
+        cli.afficherSucces("Livraison #" + liv.getId() + " terminee - Commande #"
+                + liv.getCommande().getId() + " livree a " + liv.getCommande().getClient().getNom());
         cli.pause();
     }
 
