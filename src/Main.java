@@ -12,6 +12,21 @@ public class Main {
     public static void main(String[] args) throws Exception {
         cli = new MenuCLI();
 
+        // Donnees initiales
+        service.ajouterClient(new Client("Dupont", "Jean", "06.12.34.56.78", "jean@mail.com", "12 rue de Lyon"));
+        service.ajouterClient(new Client("Martin", "Claire", "07.65.43.21.00", "claire@mail.com", "5 av Bellecour"));
+        service.ajouterClient(new Client("Bernard", "Lucas", "06.98.76.54.32", "lucas@mail.com", "8 rue Garibaldi"));
+
+        service.ajouterLivreur(new Livreur("Moreau", "Pierre", "06.11.22.33.44", "Scooter"));
+        service.ajouterLivreur(new Livreur("Leroy", "Sophie", "07.55.66.77.88", "Velo cargo"));
+
+        Commande c1 = new Commande(service.getListeClients().get(0), "Colis electronique");
+        Commande c2 = new Commande(service.getListeClients().get(1), "Paquet vetements");
+        Commande c3 = new Commande(service.getListeClients().get(0), "Livre informatique");
+        service.creerCommande(c1);
+        service.creerCommande(c2);
+        service.creerCommande(c3);
+
         boolean running = true;
         while (running) {
             int choix = cli.selectionner("SYSTEME DE LIVRAISON", new String[]{
