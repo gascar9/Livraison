@@ -3,52 +3,38 @@ public class Livreur {
     private String nom;
     private String prenom;
     private String telephone;
-    private String voiture;
-    private String plaque;
+    private String vehicule;
+    private static int compteur = 1;
 
-    public Livreur(int id, String nom, String prenom, String telephone) {
-        this.id = id;
+    public Livreur(String nom, String prenom, String telephone, String vehicule) {
+        this.id = compteur++;
         this.nom = nom;
         this.prenom = prenom;
         this.telephone = telephone;
+        this.vehicule = vehicule;
     }
 
     public void afficherDetails() {
-        System.out.println("┌─────────────────────────────┐");
-        System.out.printf("│ 👤 Client #%-17d │%n", id);
-        System.out.printf("│ Nom:       %-17s │%n", nom + " " + prenom);
-        System.out.printf("│ Téléphone: %-17s │%n", telephone);
-        System.out.printf("│ Voiture:     %-17s │%n", voiture);
-        System.out.printf("│ Plaque:   %-17s │%n", plaque);
-        System.out.println("└─────────────────────────────┘");
+        System.out.println("  +-----------------------------+");
+        System.out.printf("  | Livreur #%-18d |%n", id);
+        System.out.printf("  | Nom:       %-17s |%n", nom + " " + prenom);
+        System.out.printf("  | Telephone: %-17s |%n", telephone);
+        System.out.printf("  | Vehicule:  %-17s |%n", vehicule);
+        System.out.println("  +-----------------------------+");
     }
 
-    public int getId() {
-        return id;
-    }
-    public String getNom() {
-        return nom;
-    }
-    public String getPrenom() {
-        return prenom;
-    }
-    public String getTelephone() {
-        return telephone;
-    }
-    public void setTelephone(String telephone) {
-        this.telephone = telephone;
-    }
-    public String getVoiture() {
-        return voiture;
-    }
-    public void setVoiture(String voiture) {
-        this.voiture = voiture;
-    }
-    public String getPlaque() {
-        return plaque;
-    }
-    public void setPlaque(String plaque) {
-        this.plaque = plaque;
-    }
+    public int getId() { return id; }
+    public String getNom() { return nom; }
+    public void setNom(String nom) { this.nom = nom; }
+    public String getPrenom() { return prenom; }
+    public void setPrenom(String prenom) { this.prenom = prenom; }
+    public String getTelephone() { return telephone; }
+    public void setTelephone(String telephone) { this.telephone = telephone; }
+    public String getVehicule() { return vehicule; }
+    public void setVehicule(String vehicule) { this.vehicule = vehicule; }
 
+    @Override
+    public String toString() {
+        return "#" + id + " " + nom + " " + prenom + " (" + vehicule + ")";
+    }
 }
