@@ -144,12 +144,13 @@ Livraison/
 ├── src/
 │   ├── Client.java            # Entité client
 │   ├── Livreur.java           # Entité livreur
-│   ├── Commande.java          # Entité commande
-│   ├── Livraison.java         # Entité livraison
-│   ├── ServiceLivraison.java  # Logique métier (gestion des listes)
+│   ├── Commande.java          # Entité commande (client, description, statut)
+│   ├── Livraison.java         # Entité livraison (commande, livreur, dates)
+│   ├── StatutCommande.java    # Enum : EN_ATTENTE, EN_PREPARATION, EN_LIVRAISON, LIVREE
+│   ├── TypeLivraison.java     # Enum : STANDARD, EXPRESS
+│   ├── ServiceLivraison.java  # Logique métier (CRUD, recherche, tri, stats)
 │   ├── MenuCLI.java           # Interface terminal (JLine, couleurs, navigation)
 │   └── Main.java              # Point d'entrée, menus et interactions
-├── pom.xml                    # Dépendances Maven
 ├── run.sh                     # Script de lancement
 └── README.md
 ```
@@ -179,4 +180,4 @@ Livraison/
 → Le jar JLine n'est pas dans le classpath. Vérifier le `-cp` dans la commande ou la config Maven.
 
 **Les emojis ne s'affichent pas :**
-→ Utiliser un terminal compatible UTF-8 (Terminal.app, iTerm2, Windows Terminal).
+→ Utiliser un terminal compatible UTF-8 (Terminal.app, iTerm2).
