@@ -107,6 +107,11 @@ public class MenuCLI {
         }
     }
 
+    public boolean confirmer(String message) throws IOException {
+        int choix = selectionner(message, new String[]{"Oui", "Non"});
+        return choix == 0;
+    }
+
     // ═══ DISPLAY HELPERS ═══
 
     public void afficherSucces(String message) {
