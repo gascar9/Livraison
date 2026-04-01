@@ -108,8 +108,14 @@ public class MenuCLI {
     }
 
     public boolean confirmer(String message) throws IOException {
-        int choix = selectionner(message, new String[]{"Oui", "Non"});
-        return choix == 0;
+        terminal.enterRawMode();
+        System.out.println(JAUNE + "\n  " + message + " (o/n)" + RESET);
+        System.out.flush();
+        while (true) {
+            int key = reader().read();
+            if (key == 'o' || key == 'O' || key == 13 || key == 10) return true;
+            if (key == 'n' || key == 'N') return false;
+        }
     }
 
     // ═══ DISPLAY HELPERS ═══

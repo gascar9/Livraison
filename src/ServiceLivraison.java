@@ -17,14 +17,19 @@ public class ServiceLivraison {
 
     public boolean peutSupprimerClient(int id) {
         for (Commande c : listeCommandes) {
-            if (c.getClient().getId() == id && c.getStatut() != StatutCommande.LIVREE) {
-                return false;
+            if (c.getClient().getId() == id) {
+                if (c.getStatut() != StatutCommande.LIVREE) return false;
+                for (Livraison l : listeLivraisons) {
+                    if (l.getCommande().getId() == c.getId() && !l.estTerminee()) return false;
+                }
             }
         }
         return true;
     }
 
     public boolean supprimerClient(int id) {
+        if (!peutSupprimerClient(id)) return false;
+        listeLivraisons.removeIf(l -> l.getCommande().getClient().getId() == id);
         listeCommandes.removeIf(c -> c.getClient().getId() == id);
         return listeClients.removeIf(c -> c.getId() == id);
     }
@@ -36,8 +41,8 @@ public class ServiceLivraison {
         return null;
     }
 
-    public ArrayList<Client> rechercherClientParNom(String nom) {
-        ArrayList<Client> resultats = new ArrayList<>();
+    public List<Client> rechercherClientParNom(String nom) {
+        List<Client> resultats = new ArrayList<>();
         String nomLower = nom.toLowerCase();
         for (Client c : listeClients) {
             if (c.getNom().toLowerCase().contains(nomLower)
@@ -48,7 +53,7 @@ public class ServiceLivraison {
         return resultats;
     }
 
-    public ArrayList<Client> getClientsTriesParNom() {
+    public List<Client> getClientsTriesParNom() {
         ArrayList<Client> copie = new ArrayList<>(listeClients);
         copie.sort(Comparator.comparing(Client::getNom)
                 .thenComparing(Client::getPrenom));
@@ -75,6 +80,7 @@ public class ServiceLivraison {
     }
 
     public boolean supprimerLivreur(int id) {
+        if (!peutSupprimerLivreur(id)) return false;
         return listeLivreurs.removeIf(l -> l.getId() == id);
     }
 
@@ -85,8 +91,8 @@ public class ServiceLivraison {
         return null;
     }
 
-    public ArrayList<Livreur> rechercherLivreurParNom(String nom) {
-        ArrayList<Livreur> resultats = new ArrayList<>();
+    public List<Livreur> rechercherLivreurParNom(String nom) {
+        List<Livreur> resultats = new ArrayList<>();
         String nomLower = nom.toLowerCase();
         for (Livreur l : listeLivreurs) {
             if (l.getNom().toLowerCase().contains(nomLower)
@@ -97,7 +103,7 @@ public class ServiceLivraison {
         return resultats;
     }
 
-    public ArrayList<Livreur> getLivreursTriesParNom() {
+    public List<Livreur> getLivreursTriesParNom() {
         ArrayList<Livreur> copie = new ArrayList<>(listeLivreurs);
         copie.sort(Comparator.comparing(Livreur::getNom)
                 .thenComparing(Livreur::getPrenom));
@@ -124,6 +130,7 @@ public class ServiceLivraison {
     }
 
     public boolean supprimerCommande(int id) {
+        if (!peutSupprimerCommande(id)) return false;
         listeLivraisons.removeIf(l -> l.getCommande().getId() == id);
         return listeCommandes.removeIf(c -> c.getId() == id);
     }
@@ -135,8 +142,8 @@ public class ServiceLivraison {
         return null;
     }
 
-    public ArrayList<Commande> rechercherCommandeParDescription(String texte) {
-        ArrayList<Commande> resultats = new ArrayList<>();
+    public List<Commande> rechercherCommandeParDescription(String texte) {
+        List<Commande> resultats = new ArrayList<>();
         String texteLower = texte.toLowerCase();
         for (Commande c : listeCommandes) {
             if (c.getDescription().toLowerCase().contains(texteLower)) {
@@ -146,14 +153,14 @@ public class ServiceLivraison {
         return resultats;
     }
 
-    public ArrayList<Commande> getCommandesTrieesParDate() {
+    public List<Commande> getCommandesTrieesParDate() {
         ArrayList<Commande> copie = new ArrayList<>(listeCommandes);
         copie.sort(Comparator.comparing(Commande::getDateCommande).reversed());
         return copie;
     }
 
-    public ArrayList<Commande> getCommandesParClient(Client client) {
-        ArrayList<Commande> resultats = new ArrayList<>();
+    public List<Commande> getCommandesParClient(Client client) {
+        List<Commande> resultats = new ArrayList<>();
         for (Commande c : listeCommandes) {
             if (c.getClient().getId() == client.getId()) {
                 resultats.add(c);
@@ -162,8 +169,8 @@ public class ServiceLivraison {
         return resultats;
     }
 
-    public ArrayList<Commande> getCommandesEnLivraison() {
-        ArrayList<Commande> resultats = new ArrayList<>();
+    public List<Commande> getCommandesEnLivraison() {
+        List<Commande> resultats = new ArrayList<>();
         for (Commande c : listeCommandes) {
             if (c.getStatut() == StatutCommande.EN_LIVRAISON) {
                 resultats.add(c);
@@ -191,8 +198,8 @@ public class ServiceLivraison {
         listeLivraisons.add(livraison);
     }
 
-    public ArrayList<Livraison> getLivraisonsEnCours() {
-        ArrayList<Livraison> resultats = new ArrayList<>();
+    public List<Livraison> getLivraisonsEnCours() {
+        List<Livraison> resultats = new ArrayList<>();
         for (Livraison l : listeLivraisons) {
             if (!l.estTerminee()) {
                 resultats.add(l);
@@ -201,8 +208,8 @@ public class ServiceLivraison {
         return resultats;
     }
 
-    public ArrayList<Livraison> getLivraisonsTerminees() {
-        ArrayList<Livraison> resultats = new ArrayList<>();
+    public List<Livraison> getLivraisonsTerminees() {
+        List<Livraison> resultats = new ArrayList<>();
         for (Livraison l : listeLivraisons) {
             if (l.estTerminee()) {
                 resultats.add(l);
