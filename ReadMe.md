@@ -121,6 +121,12 @@ Quand l'application demande une information (nom, telephone, etc.),
 taper le texte puis appuyer sur Entree. Laisser vide pour ne pas modifier
 un champ existant.
 
+### Confirmation de suppression
+
+Avant chaque suppression, l'application affiche les details de l'element
+et demande confirmation (o/n). La suppression est refusee si l'element
+a des dependances actives (commandes en cours, livraisons non terminees).
+
 ---
 
 ## Fonctionnalites
@@ -130,7 +136,7 @@ un champ existant.
 | Action | Description |
 |--------|-------------|
 | Ajouter | Saisie du nom, prenom, telephone, email, adresse |
-| Supprimer | Par ID, avec confirmation et verification des commandes en cours |
+| Supprimer | Par ID, avec confirmation. Supprime aussi les commandes et livraisons associees (si toutes terminees) |
 | Modifier | Modification partielle (laisser vide = pas de changement) |
 | Rechercher | Par identifiant ou par nom (recherche partielle) |
 | Afficher | Liste complete ou triee par nom |
@@ -140,7 +146,7 @@ un champ existant.
 | Action | Description |
 |--------|-------------|
 | Ajouter | Saisie du nom, prenom, telephone, vehicule |
-| Supprimer | Par ID, avec confirmation et verification des livraisons en cours |
+| Supprimer | Par ID, avec confirmation. Refuse si livraisons en cours |
 | Modifier | Modification partielle |
 | Rechercher | Par identifiant ou par nom |
 | Afficher | Liste complete ou triee par nom |
@@ -150,7 +156,7 @@ un champ existant.
 | Action | Description |
 |--------|-------------|
 | Creer | Selection du client par menu fleches, saisie de la description |
-| Supprimer | Par ID, avec confirmation et verification des livraisons |
+| Supprimer | Par ID, avec confirmation. Supprime aussi les livraisons associees (si toutes terminees) |
 | Modifier statut | EN_ATTENTE > EN_PREPARATION > EN_LIVRAISON > LIVREE |
 | Rechercher | Par identifiant ou par description |
 | Afficher | Toutes, triees par date, par client, ou en cours de livraison |
@@ -159,7 +165,7 @@ un champ existant.
 
 | Action | Description |
 |--------|-------------|
-| Affecter | Selection commande + livreur + type (standard/express) + date prevue |
+| Affecter | Selection commande + livreur + type (standard/express) + date prevue. Empeche la double affectation |
 | Terminer | Selection de la livraison en cours, marque comme livree |
 | En cours | Liste des livraisons non terminees |
 | Historique | Liste des livraisons terminees |
@@ -174,6 +180,19 @@ un champ existant.
 ---
 
 ## Architecture du code
+
+### Separation des responsabilites
+
+Le projet respecte une separation en 3 couches :
+
+- **Couche metier (modele)** : `Personne`, `Client`, `Livreur`, `Commande`, `Livraison`, `StatutCommande`, `TypeLivraison`
+  Les classes entites ne contiennent que des attributs, des getters/setters et des methodes metier (afficherDetails, modifierStatut, terminerLivraison). Elles ne connaissent ni le terminal ni le service.
+
+- **Couche service** : `ServiceLivraison`
+  Gere les collections (ArrayList) et toute la logique metier : CRUD, recherche, tri, statistiques, verifications avant suppression (cascade). Renvoie des listes non modifiables (Collections.unmodifiableList).
+
+- **Couche IHM (interface)** : `MenuCLI` + `Main`
+  MenuCLI encapsule JLine (menus fleches, saisie texte, affichage couleurs). Main contient tous les menus interactifs et delegue au service pour la logique metier et a MenuCLI pour l'affichage.
 
 ### Diagramme de classes
 
@@ -198,14 +217,22 @@ un champ existant.
       | - email : String |     | - vehicule : String
       | - adresse : String     +------------------+
       +------------------+
+
+  Commande                      Livraison
+  - id, client, description     - id, commande, livreur
+  - dateCommande, statut        - datePrevue, dateReelle, type
+  1 Client -- 0..* Commande     1 Commande -- 0..1 Livraison
+                                1 Livreur  -- 0..* Livraison
 ```
+
+Le diagramme UML complet est disponible dans `diagramme-uml.mmd` (format Mermaid).
 
 ### Fichiers source
 
 ```
 src/
   Personne.java          Classe abstraite mere de Client et Livreur.
-                         Factorise les attributs communs : id, nom, prenom, telephone.
+                         Factorise id, nom, prenom, telephone.
                          Definit afficherDetails() en methode abstraite.
 
   Client.java            Herite de Personne. Ajoute email et adresse.
@@ -214,61 +241,31 @@ src/
   Livreur.java           Herite de Personne. Ajoute vehicule.
                          ID auto-incremente (compteur statique propre).
 
-  StatutCommande.java    Enum avec 4 valeurs :
-                         EN_ATTENTE, EN_PREPARATION, EN_LIVRAISON, LIVREE.
-                         Chaque valeur a un label affichable ("En attente", etc.).
+  StatutCommande.java    Enum : EN_ATTENTE, EN_PREPARATION, EN_LIVRAISON, LIVREE.
 
-  TypeLivraison.java     Enum avec 2 valeurs : STANDARD, EXPRESS.
+  TypeLivraison.java     Enum : STANDARD, EXPRESS.
 
-  Commande.java          Represente une commande. Contient une reference vers
-                         un Client, une description, une date (LocalDate),
-                         et un StatutCommande. ID auto-incremente.
+  Commande.java          Entite commande. Reference un Client, une description,
+                         une date (LocalDate) et un StatutCommande.
 
-  Livraison.java         Represente une livraison. Lie une Commande a un Livreur.
-                         Contient une date prevue, une date reelle (null si en cours),
-                         et un TypeLivraison. Passe la commande en EN_LIVRAISON
-                         a la creation. terminerLivraison() met la date reelle
-                         et passe la commande en LIVREE.
+  Livraison.java         Entite livraison. Lie une Commande a un Livreur.
+                         Date prevue, date reelle (null si en cours), TypeLivraison.
+                         terminerLivraison() met la date reelle et passe
+                         la commande en LIVREE.
 
-  ServiceLivraison.java  Couche metier. Stocke 4 ArrayList :
-                         listeClients, listeLivreurs, listeCommandes, listeLivraisons.
-                         Methodes CRUD pour chaque entite + recherche par nom,
-                         tri par nom/date, statistiques, verifications avant
-                         suppression (cascade). Les getters renvoient des listes
-                         non modifiables (Collections.unmodifiableList).
+  ServiceLivraison.java  Couche metier. 4 ArrayList + CRUD + recherche + tri +
+                         statistiques + verifications avant suppression (cascade).
+                         Listes non modifiables en sortie.
 
-  MenuCLI.java           Couche interface. Encapsule JLine 3.25.1.
-                         selectionner() : menu fleches avec boucle de lecture.
-                         lireTexte() / lireEntier() : saisie clavier caractere
-                         par caractere en mode raw.
-                         Methodes d'affichage avec couleurs ANSI.
+  MenuCLI.java           Couche IHM. Encapsule JLine 3.25.1.
+                         selectionner() : menu fleches.
+                         lireTexte() / lireEntier() : saisie clavier.
+                         confirmer() : confirmation o/n sans effacer l'ecran.
+                         Couleurs ANSI.
 
-  Main.java              Point d'entree. Initialise le terminal et les donnees
-                         de demo. Contient tous les menus et leurs actions.
-                         Delegue la logique metier a ServiceLivraison
-                         et l'affichage a MenuCLI.
-```
-
-### Relations entre classes
-
-```
-Main ----utilise----> MenuCLI          (interface terminal)
-Main ----utilise----> ServiceLivraison (logique metier)
-
-ServiceLivraison ----gere----> ArrayList<Client>
-ServiceLivraison ----gere----> ArrayList<Livreur>
-ServiceLivraison ----gere----> ArrayList<Commande>
-ServiceLivraison ----gere----> ArrayList<Livraison>
-
-Commande ----reference----> Client          (le client qui a commande)
-Commande ----reference----> StatutCommande  (etat de la commande)
-
-Livraison ----reference----> Commande       (la commande livree)
-Livraison ----reference----> Livreur        (le livreur affecte)
-Livraison ----reference----> TypeLivraison  (standard ou express)
-
-Client  ----herite----> Personne
-Livreur ----herite----> Personne
+  Main.java              Point d'entree. Donnees de demo + menus interactifs.
+                         Delegue la logique a ServiceLivraison et
+                         l'affichage a MenuCLI.
 ```
 
 ### Concepts POO utilises
@@ -277,11 +274,12 @@ Livreur ----herite----> Personne
 |---------|-----------------|
 | **Heritage** | `Personne` (abstraite) > `Client`, `Livreur` |
 | **Abstraction** | `afficherDetails()` est abstraite dans `Personne` |
+| **Polymorphisme** | `afficherDetails()` s'execute differemment pour Client et Livreur |
 | **Encapsulation** | Attributs prives, getters/setters, listes non modifiables |
 | **Enumerations** | `StatutCommande`, `TypeLivraison` |
 | **Collections** | `ArrayList` pour stocker les entites |
 | **Relations** | Composition (Commande contient Client), association (Livraison lie Commande et Livreur) |
-| **Polymorphisme** | `afficherDetails()` s'execute differemment pour Client et Livreur |
+| **Separation des couches** | Entites (modele) / ServiceLivraison (metier) / Main+MenuCLI (IHM) |
 
 ### Fonctionnalites avancees implementees
 
