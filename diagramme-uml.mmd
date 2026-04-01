@@ -176,24 +176,23 @@ classDiagram
         +toString() String
     }
 
+    %% Heritage
     Personne <|-- Client
     Personne <|-- Livreur
 
-    Commande --> Client : client
-    Commande --> StatutCommande : statut
+    %% Associations avec cardinalites
+    Client "1" <-- "0..*" Commande : client
+    Commande "1" --> "1" StatutCommande : statut
+    Commande "1" <-- "0..1" Livraison : commande
+    Livreur "1" <-- "0..*" Livraison : livreur
+    Livraison "1" --> "1" TypeLivraison : type
 
-    Livraison --> Commande : commande
-    Livraison --> Livreur : livreur
-    Livraison --> TypeLivraison : type
-
+    %% Compositions (ServiceLivraison gere les collections)
     ServiceLivraison "1" *-- "0..*" Client : listeClients
     ServiceLivraison "1" *-- "0..*" Livreur : listeLivreurs
     ServiceLivraison "1" *-- "0..*" Commande : listeCommandes
     ServiceLivraison "1" *-- "0..*" Livraison : listeLivraisons
 
-    Main --> ServiceLivraison : uses
-    Main --> MenuCLI : uses
-    Main ..> Client : delegates menu
-    Main ..> Livreur : delegates menu
-    Main ..> Commande : delegates menu
-    Main ..> Livraison : delegates menu
+    %% Dependances
+    Main --> ServiceLivraison : utilise
+    Main --> MenuCLI : utilise
