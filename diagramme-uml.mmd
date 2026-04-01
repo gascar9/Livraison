@@ -1,0 +1,199 @@
+classDiagram
+    class Personne {
+        <<abstract>>
+        #int id
+        -String nom
+        -String prenom
+        -String telephone
+        +getId() int
+        +getNom() String
+        +setNom(String) void
+        +getPrenom() String
+        +setPrenom(String) void
+        +getTelephone() String
+        +setTelephone(String) void
+        +afficherDetails()* void
+        +toString() String
+    }
+
+    class Client {
+        -String email
+        -String adresse
+        -int compteur$
+        +getEmail() String
+        +setEmail(String) void
+        +getAdresse() String
+        +setAdresse(String) void
+        +afficherDetails() void
+        +menu(ServiceLivraison, MenuCLI)$ void
+        -ajouter(ServiceLivraison, MenuCLI)$ void
+        -supprimer(ServiceLivraison, MenuCLI)$ void
+        -modifier(ServiceLivraison, MenuCLI)$ void
+        -rechercher(ServiceLivraison, MenuCLI)$ void
+    }
+
+    class Livreur {
+        -String vehicule
+        -int compteur$
+        +getVehicule() String
+        +setVehicule(String) void
+        +afficherDetails() void
+        +toString() String
+        +menu(ServiceLivraison, MenuCLI)$ void
+        -ajouter(ServiceLivraison, MenuCLI)$ void
+        -supprimer(ServiceLivraison, MenuCLI)$ void
+        -modifier(ServiceLivraison, MenuCLI)$ void
+        -rechercher(ServiceLivraison, MenuCLI)$ void
+    }
+
+    class Commande {
+        -int id
+        -String description
+        -LocalDate dateCommande
+        -StatutCommande statut
+        -int compteur$
+        +getId() int
+        +getClient() Client
+        +getDescription() String
+        +setDescription(String) void
+        +getDateCommande() LocalDate
+        +getStatut() StatutCommande
+        +afficherCommande() void
+        +modifierStatut(StatutCommande) void
+        +toString() String
+        +menu(ServiceLivraison, MenuCLI)$ void
+        -creer(ServiceLivraison, MenuCLI)$ void
+        -supprimer(ServiceLivraison, MenuCLI)$ void
+        -modifierStatutMenu(ServiceLivraison, MenuCLI)$ void
+        -rechercher(ServiceLivraison, MenuCLI)$ void
+    }
+
+    class Livraison {
+        -int id
+        -LocalDate dateLivraisonPrevue
+        -LocalDate dateLivraisonReelle
+        -TypeLivraison type
+        -int compteur$
+        +getId() int
+        +getCommande() Commande
+        +getLivreur() Livreur
+        +getDateLivraisonPrevue() LocalDate
+        +getDateLivraisonReelle() LocalDate
+        +getType() TypeLivraison
+        +afficherLivraison() void
+        +terminerLivraison() void
+        +estTerminee() boolean
+        +toString() String
+        +menu(ServiceLivraison, MenuCLI)$ void
+        -affecter(ServiceLivraison, MenuCLI)$ void
+        -terminer(ServiceLivraison, MenuCLI)$ void
+    }
+
+    class ServiceLivraison {
+        -ArrayList~Client~ listeClients
+        -ArrayList~Livreur~ listeLivreurs
+        -ArrayList~Commande~ listeCommandes
+        -ArrayList~Livraison~ listeLivraisons
+        +ajouterClient(Client) void
+        +supprimerClient(int) boolean
+        +peutSupprimerClient(int) boolean
+        +rechercherClientParId(int) Client
+        +rechercherClientParNom(String) ArrayList~Client~
+        +getClientsTriesParNom() ArrayList~Client~
+        +getListeClients() List~Client~
+        +ajouterLivreur(Livreur) void
+        +supprimerLivreur(int) boolean
+        +peutSupprimerLivreur(int) boolean
+        +rechercherLivreurParId(int) Livreur
+        +rechercherLivreurParNom(String) ArrayList~Livreur~
+        +getLivreursTriesParNom() ArrayList~Livreur~
+        +getListeLivreurs() List~Livreur~
+        +creerCommande(Commande) void
+        +supprimerCommande(int) boolean
+        +peutSupprimerCommande(int) boolean
+        +rechercherCommandeParId(int) Commande
+        +rechercherCommandeParDescription(String) ArrayList~Commande~
+        +getCommandesTrieesParDate() ArrayList~Commande~
+        +getCommandesParClient(Client) ArrayList~Commande~
+        +getCommandesEnLivraison() ArrayList~Commande~
+        +getListeCommandes() List~Commande~
+        +affecterLivraison(Livraison) void
+        +commandeDejaAffectee(int) boolean
+        +getLivraisonsEnCours() ArrayList~Livraison~
+        +getLivraisonsTerminees() ArrayList~Livraison~
+        +getListeLivraisons() List~Livraison~
+        +getNombreCommandesLivrees() int
+        +getNombreLivraisonsParLivreur(Livreur) int
+        +getLivreurPlusActif() Livreur
+    }
+
+    class MenuCLI {
+        +String RESET$
+        +String BOLD$
+        +String DIM$
+        +String VERT$
+        +String ROUGE$
+        +String JAUNE$
+        +String CYAN$
+        -Terminal terminal
+        -NonBlockingReader reader
+        +selectionner(String, String[]) int
+        +lireTexte(String) String
+        +lireEntier(String) int
+        +confirmer(String) boolean
+        +afficherSucces(String) void
+        +afficherErreur(String) void
+        +afficherTitre(String) void
+        +afficherInfo(String) void
+        +pause() void
+        +clearScreen() void
+        +close() void
+    }
+
+    class Main {
+        +main(String[])$ void
+        -chargerDonnees(ServiceLivraison)$ void
+        -afficherStatistiques(ServiceLivraison, MenuCLI)$ void
+    }
+
+    class StatutCommande {
+        <<enumeration>>
+        EN_ATTENTE
+        EN_PREPARATION
+        EN_LIVRAISON
+        LIVREE
+        -String label
+        +getLabel() String
+        +toString() String
+    }
+
+    class TypeLivraison {
+        <<enumeration>>
+        STANDARD
+        EXPRESS
+        -String label
+        +getLabel() String
+        +toString() String
+    }
+
+    Personne <|-- Client
+    Personne <|-- Livreur
+
+    Commande --> Client : client
+    Commande --> StatutCommande : statut
+
+    Livraison --> Commande : commande
+    Livraison --> Livreur : livreur
+    Livraison --> TypeLivraison : type
+
+    ServiceLivraison "1" *-- "0..*" Client : listeClients
+    ServiceLivraison "1" *-- "0..*" Livreur : listeLivreurs
+    ServiceLivraison "1" *-- "0..*" Commande : listeCommandes
+    ServiceLivraison "1" *-- "0..*" Livraison : listeLivraisons
+
+    Main --> ServiceLivraison : uses
+    Main --> MenuCLI : uses
+    Main ..> Client : delegates menu
+    Main ..> Livreur : delegates menu
+    Main ..> Commande : delegates menu
+    Main ..> Livraison : delegates menu
