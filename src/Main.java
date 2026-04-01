@@ -9,12 +9,6 @@ public class Main {
         // Donnees initiales
         chargerDonnees(service);
 
-        // Gestionnaires de chaque module
-        GestionClients gClients = new GestionClients(service, cli);
-        GestionLivreurs gLivreurs = new GestionLivreurs(service, cli);
-        GestionCommandes gCommandes = new GestionCommandes(service, cli);
-        GestionLivraisons gLivraisons = new GestionLivraisons(service, cli);
-
         // Boucle principale
         boolean running = true;
         while (running) {
@@ -28,10 +22,10 @@ public class Main {
             });
 
             switch (choix) {
-                case 0 -> gClients.menu();
-                case 1 -> gLivreurs.menu();
-                case 2 -> gCommandes.menu();
-                case 3 -> gLivraisons.menu();
+                case 0 -> Client.menu(service, cli);
+                case 1 -> Livreur.menu(service, cli);
+                case 2 -> Commande.menu(service, cli);
+                case 3 -> Livraison.menu(service, cli);
                 case 4 -> afficherStatistiques(service, cli);
                 case 5 -> running = false;
             }
