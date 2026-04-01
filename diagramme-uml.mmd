@@ -25,11 +25,7 @@ classDiagram
         +getAdresse() String
         +setAdresse(String) void
         +afficherDetails() void
-        +menu(ServiceLivraison, MenuCLI)$ void
-        -ajouter(ServiceLivraison, MenuCLI)$ void
-        -supprimer(ServiceLivraison, MenuCLI)$ void
-        -modifier(ServiceLivraison, MenuCLI)$ void
-        -rechercher(ServiceLivraison, MenuCLI)$ void
+        +toString() String
     }
 
     class Livreur {
@@ -39,18 +35,12 @@ classDiagram
         +setVehicule(String) void
         +afficherDetails() void
         +toString() String
-        +menu(ServiceLivraison, MenuCLI)$ void
-        -ajouter(ServiceLivraison, MenuCLI)$ void
-        -supprimer(ServiceLivraison, MenuCLI)$ void
-        -modifier(ServiceLivraison, MenuCLI)$ void
-        -rechercher(ServiceLivraison, MenuCLI)$ void
     }
 
     class Commande {
         -int id
         -String description
         -LocalDate dateCommande
-        -StatutCommande statut
         -int compteur$
         +getId() int
         +getClient() Client
@@ -61,18 +51,12 @@ classDiagram
         +afficherCommande() void
         +modifierStatut(StatutCommande) void
         +toString() String
-        +menu(ServiceLivraison, MenuCLI)$ void
-        -creer(ServiceLivraison, MenuCLI)$ void
-        -supprimer(ServiceLivraison, MenuCLI)$ void
-        -modifierStatutMenu(ServiceLivraison, MenuCLI)$ void
-        -rechercher(ServiceLivraison, MenuCLI)$ void
     }
 
     class Livraison {
         -int id
         -LocalDate dateLivraisonPrevue
         -LocalDate dateLivraisonReelle
-        -TypeLivraison type
         -int compteur$
         +getId() int
         +getCommande() Commande
@@ -84,9 +68,6 @@ classDiagram
         +terminerLivraison() void
         +estTerminee() boolean
         +toString() String
-        +menu(ServiceLivraison, MenuCLI)$ void
-        -affecter(ServiceLivraison, MenuCLI)$ void
-        -terminer(ServiceLivraison, MenuCLI)$ void
     }
 
     class ServiceLivraison {
@@ -98,29 +79,29 @@ classDiagram
         +supprimerClient(int) boolean
         +peutSupprimerClient(int) boolean
         +rechercherClientParId(int) Client
-        +rechercherClientParNom(String) ArrayList~Client~
-        +getClientsTriesParNom() ArrayList~Client~
+        +rechercherClientParNom(String) List~Client~
+        +getClientsTriesParNom() List~Client~
         +getListeClients() List~Client~
         +ajouterLivreur(Livreur) void
         +supprimerLivreur(int) boolean
         +peutSupprimerLivreur(int) boolean
         +rechercherLivreurParId(int) Livreur
-        +rechercherLivreurParNom(String) ArrayList~Livreur~
-        +getLivreursTriesParNom() ArrayList~Livreur~
+        +rechercherLivreurParNom(String) List~Livreur~
+        +getLivreursTriesParNom() List~Livreur~
         +getListeLivreurs() List~Livreur~
         +creerCommande(Commande) void
         +supprimerCommande(int) boolean
         +peutSupprimerCommande(int) boolean
         +rechercherCommandeParId(int) Commande
-        +rechercherCommandeParDescription(String) ArrayList~Commande~
-        +getCommandesTrieesParDate() ArrayList~Commande~
-        +getCommandesParClient(Client) ArrayList~Commande~
-        +getCommandesEnLivraison() ArrayList~Commande~
+        +rechercherCommandeParDescription(String) List~Commande~
+        +getCommandesTrieesParDate() List~Commande~
+        +getCommandesParClient(Client) List~Commande~
+        +getCommandesEnLivraison() List~Commande~
         +getListeCommandes() List~Commande~
-        +affecterLivraison(Livraison) void
         +commandeDejaAffectee(int) boolean
-        +getLivraisonsEnCours() ArrayList~Livraison~
-        +getLivraisonsTerminees() ArrayList~Livraison~
+        +affecterLivraison(Livraison) void
+        +getLivraisonsEnCours() List~Livraison~
+        +getLivraisonsTerminees() List~Livraison~
         +getListeLivraisons() List~Livraison~
         +getNombreCommandesLivrees() int
         +getNombreLivraisonsParLivreur(Livreur) int
@@ -151,9 +132,15 @@ classDiagram
     }
 
     class Main {
+        -MenuCLI cli$
+        -ServiceLivraison service$
         +main(String[])$ void
-        -chargerDonnees(ServiceLivraison)$ void
-        -afficherStatistiques(ServiceLivraison, MenuCLI)$ void
+        -chargerDonnees()$ void
+        -menuClients()$ void
+        -menuLivreurs()$ void
+        -menuCommandes()$ void
+        -menuLivraisons()$ void
+        -menuStatistiques()$ void
     }
 
     class StatutCommande {
